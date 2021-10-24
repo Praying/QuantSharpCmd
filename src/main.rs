@@ -13,7 +13,7 @@ fn main() {
                 .arg(
                     Arg::new("exchange")
                         .short('e')
-                        .value_name("binance")
+                        .value_name("exchange")
                         .takes_value(true)
                         .required(true)
                         .about("exchange, such as binance, okex and so on"),

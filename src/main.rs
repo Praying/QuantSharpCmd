@@ -1,5 +1,11 @@
+use chrono::TimeZone;
 use clap::{App, Arg};
-
+use chrono::NaiveDateTime;
+enum Exchange{
+    Binance,
+    OKEx,
+    None
+}
 fn main() {
     let matches = App::new("qscmd")
         .version("0.1")
@@ -52,9 +58,16 @@ fn main() {
         .get_matches();
 
     if let Some(ref matches) = matches.subcommand_matches("save") {
-        if let Some(exchange) = matches.value_of("exchange") {
-            println!("exchange:{}", exchange);
-        }
+
+        let _exchange = if let Some(exchange) = matches.value_of("exchange") {
+            match exchange{
+                "binance"=>Exchange::Binance,
+                "okex"=>Exchange::OKEx,
+                _=>Exchange::None
+            }
+        }else{
+            Exchange::None
+        };
         if let Some(symbol) = matches.value_of("symbol") {
             println!("symbol:{}", symbol);
         }
@@ -65,7 +78,32 @@ fn main() {
             println!("begin = {}", begin)
         }
         if let Some(end) = matches.value_of("end") {
-            println!("end = {}", end)
+            println!("end = {}", end);
         }
+    }
+}
+
+
+
+fn to_timestamp_millis(date_str:&str)->Option<i64>{   
+    match NaiveDateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S"){
+        Ok(naive_datetime)=>{
+            return Some(naive_datetime.timestamp_millis());
+        }
+        Err(err)=>{
+            println!("{}",&err);
+            return None;
+        }
+        
+    }
+}
+mod test{
+    use crate::to_timestamp_millis;
+
+    #[test]
+    fn test_parse_time(){
+        //copy from https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=d2b83b3980a5f8fb2e798271766b4541
+        let date_str = "2020-10-01 22:10:43";        
+        assert_eq!(Some(1601590243000), to_timestamp_millis(date_str));               
     }
 }
